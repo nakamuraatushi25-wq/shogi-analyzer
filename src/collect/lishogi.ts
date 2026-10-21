@@ -46,9 +46,10 @@ export function emptyState(seeds: string[] = []): CollectState {
 
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-// 収集対象にする局：平手のレート戦で、終局まで指されたもの
+// 収集対象にする局：人間同士の平手のレート戦で、終局まで指されたもの
+// BOT は対局者欄に「BOT 名前」と称号付きで出る
 export function isWantedGame(kif: string): boolean {
-  return /手合割[：:]\s*平手/.test(kif) && /棋戦[：:].*Rated/.test(kif) && /^\s*\d+\s+(投了|詰み|切れ負け|時間切れ)/m.test(kif);
+  return /手合割[：:]\s*平手/.test(kif) && !/^[先後]手[：:]\s*BOT\s/m.test(kif) && /棋戦[：:].*Rated/.test(kif) && /^\s*\d+\s+(投了|詰み|切れ負け|時間切れ)/m.test(kif);
 }
 
 function header(kif: string, key: string): string | undefined {

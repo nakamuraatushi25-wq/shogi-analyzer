@@ -66,6 +66,7 @@ test('平手のレート戦で終局したものだけを対象にする', () =>
   assert.equal(isWantedGame(game), true);
   assert.equal(isWantedGame(game.replace('Rated', 'Casual')), false);
   assert.equal(isWantedGame(game.replace('手合割：平手', '手合割：香落ち')), false);
+  assert.equal(isWantedGame(game.replace(/^後手：.*$/m, '後手：BOT kawasemi')), false);
 });
 
 test('対局者欄を段級位と名前に分ける', () => {
