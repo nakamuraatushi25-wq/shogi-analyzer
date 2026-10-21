@@ -1,0 +1,12 @@
+{
+  "name": "shogi-analyzer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "棋譜から戦法・囲いを判定し、棋風と上達ポイントを分析するライブラリ（ブラウザ・Node 両対応）",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.ts\"",
+    "classify": "node scripts/classify.ts"
+  },
+  "engines": { "node": ">=22.18" }
+}
