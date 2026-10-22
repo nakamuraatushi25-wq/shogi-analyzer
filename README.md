@@ -56,3 +56,19 @@ node scripts/trends-report.ts data/trends.json 300 3
 - 対局全体（1手あたりの割合）と、60手目まで（回数）の2通りで比べる。
 - 段位帯は 6級以下・5〜1級・初段〜二段・三段〜四段・五段以上。
 - 差の大きさは効果量 d（勝ち局の平均 − 負け局の平均を、合わせた標準偏差で割ったもの）で表す。|t| が 3 以上のものだけを載せる。
+
+## 駒を取ったマスと勝ち負けの集計
+
+```sh
+# 一覧（build-index.ts の出力）から、戦型ごとに駒を取ったマス別の勝ち・負け局数を集計する（手数の上限）
+node scripts/capture-trends.ts data/lishogi/index.jsonl data/captures.json 60
+# 最初に駒を取ったマス別の勝率（9×9）と、上限までに取ったマス別の勝率の高い・低いマスを表にする
+node scripts/capture-report.ts data/captures.json 全体 10 200
+```
+
+マスは駒を取った側から見た座標（後手なら盤を180度回す）。下が自陣になる。
+
+```sh
+# 何手目にどこ（敵陣・中段・自陣）で取ったか、どちらが先に取ったか、何の駒をどの駒で取ったか（60手目まで）別の勝率
+node scripts/capture-timing.ts data/lishogi/index.jsonl 6 300
+```
