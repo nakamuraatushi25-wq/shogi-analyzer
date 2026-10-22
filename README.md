@@ -111,3 +111,12 @@ node scripts/castle-pieces.ts data/lishogi/index.jsonl 60 12 300
 # 手数の上限・囲いの数・最低局数・各向きの件数
 node scripts/castle-events.ts data/lishogi/index.jsonl 60 10 300 10
 ```
+
+## 勝ち要素・負け要素の点数と勝敗・段位帯
+
+棋譜を URL で2つに分け、半分で囲いごとに勝ち要素・負け要素（`src/gameEvents.ts`）を選び、残り半分で「勝ち要素の数 − 負け要素の数」を点数にする。点数ごとの勝率と AUC、段位帯ごとの勝ち要素・負け要素の数、同じ段位帯同士の対局で点数の高い側が勝った割合、要素の出る割合（級位者と三段以上）を出す。
+
+```sh
+# 手数の上限・囲いごとに要素を選ぶ最低人数
+node --max-old-space-size=6144 scripts/element-score.ts data/lishogi/index.jsonl 60 5000
+```

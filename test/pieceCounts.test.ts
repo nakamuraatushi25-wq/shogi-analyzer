@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseKif } from '../src/kif.ts';
 import { countPieceMoves } from '../src/pieceCounts.ts';
-import { rankBand } from '../src/ranks.ts';
+import { rankBand, rankValue } from '../src/ranks.ts';
 
 function kif(moves: string[]): string {
   return ['手合割：平手', ...moves.map((m, i) => `${i + 1} ${m}`)].join('\n');
@@ -25,4 +25,12 @@ test('段級位を段位帯に分ける', () => {
   assert.equal(rankBand('四段'), '三段〜四段');
   assert.equal(rankBand('六段'), '五段以上');
   assert.equal(rankBand(null), null);
+});
+
+test('段級位を数にする（1級 = 0、初段 = 1）', () => {
+  assert.equal(rankValue('3級'), -2);
+  assert.equal(rankValue('1級'), 0);
+  assert.equal(rankValue('初段'), 1);
+  assert.equal(rankValue('五段'), 5);
+  assert.equal(rankValue(null), null);
 });
