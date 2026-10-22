@@ -102,3 +102,12 @@ node --max-old-space-size=4096 scripts/win-patterns.ts data/lishogi/index.jsonl 
 # 手数の上限・囲いの数・最低局数
 node scripts/castle-pieces.ts data/lishogi/index.jsonl 60 12 300
 ```
+
+## 囲いごとの勝ちやすい要素・負けやすい要素
+
+上限の手数までに起きたこと（取った・取られた駒とその場所、敵陣・自陣に入った駒とその場所、最初のぶつかりの場所と手数、金銀・敵陣への侵入はどちらが先か）を要素として数え、要素があった局となかった局の勝率の差を、自分の囲い別・相手の囲い別に出す。上限の手数より前に終わった局は除く。棋譜を URL で2つに分け、両方で同じ向きに出た要素だけを残し、全局と比べてその囲いで特に強く出る要素も別に並べる。
+
+```sh
+# 手数の上限・囲いの数・最低局数・各向きの件数
+node scripts/castle-events.ts data/lishogi/index.jsonl 60 10 300 10
+```
