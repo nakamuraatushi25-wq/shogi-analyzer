@@ -1,4 +1,4 @@
-// 集めた棋譜を1局1行の一覧（JSON Lines）にする。戦型・囲い・段級位・勝敗・駒ごとの回数・駒を取ったマス・
+// 集めた棋譜を1局1行の一覧（JSON Lines）にする。戦型・囲い・段級位・勝敗・駒ごとの回数・駒を取ったマス・敵陣に入った駒・
 // 仕掛けの局面の指標・序盤の手順を入れておき、
 // 以降の集計で棋譜を読み直さずに済むようにする
 // 使い方: node scripts/build-index.ts <lishogi-data のディレクトリ> <出力.jsonl>
@@ -6,6 +6,7 @@ import { appendFileSync, readFileSync, readdirSync, writeFileSync } from 'node:f
 import { parseKif, splitKifGames } from '../src/kif.ts';
 import { captureSquares } from '../src/captures.ts';
 import { classifyOpening } from '../src/opening.ts';
+import { invasions } from '../src/invasions.ts';
 import { countPieceMoves, WINDOW_PLY } from '../src/pieceCounts.ts';
 import { parsePlayer } from '../src/players.ts';
 import type { Move } from '../src/types.ts';
@@ -42,6 +43,7 @@ for (const file of readdirSync(`${dir}/players`).sort()) {
       const window = game.moves.length > WINDOW_PLY ? countPieceMoves(game, WINDOW_PLY) : null;
       const captures = captureSquares(game);
       const metrics = winPatternMetrics(game);
+      const entered = invasions(game);
       const side = (color: 'sente' | 'gote') => {
         const player = parsePlayer(game.headers[color === 'sente' ? '先手' : '後手']);
         return {
@@ -51,6 +53,8 @@ for (const file of readdirSync(`${dir}/players`).sort()) {
           windowCounts: window?.[color].counts ?? null,
           // 駒を取った手: [手数, 筋*10+段（自分側から見た座標）, 取られた駒, 取った駒]
           captures: captures[color].map((c) => [c.ply, c.file * 10 + c.rank, c.captured, c.by]),
+          // 敵陣に入った手: [手数, 筋*10+段（自分側から見た座標）, 駒, 打ったら1]
+          invasions: entered[color].map((v) => [v.ply, v.file * 10 + v.rank, v.piece, v.drop ? 1 : 0]),
           // 仕掛けの局面とその20手後の指標（src/winPatterns.ts）。駒がぶつからなかった局は null
           metrics: metrics?.[color] ?? null,
         };
