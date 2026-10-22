@@ -35,8 +35,8 @@ for (const file of readdirSync(`${dir}/players`).sort()) {
           rookStyle: o[color].rookStyle, castle: o[color].castle,
           moves: full[color].moves, counts: full[color].counts,
           windowCounts: window?.[color].counts ?? null,
-          // 駒を取った手: [手数, 筋*10+段（自分側から見た座標）, 取った駒]
-          captures: captures[color].map((c) => [c.ply, c.file * 10 + c.rank, c.captured]),
+          // 駒を取った手: [手数, 筋*10+段（自分側から見た座標）, 取られた駒, 取った駒]
+          captures: captures[color].map((c) => [c.ply, c.file * 10 + c.rank, c.captured, c.by]),
         };
       };
       lines.push(JSON.stringify({

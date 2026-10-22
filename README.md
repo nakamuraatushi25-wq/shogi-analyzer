@@ -67,3 +67,8 @@ node scripts/capture-report.ts data/captures.json 全体 10 200
 ```
 
 マスは駒を取った側から見た座標（後手なら盤を180度回す）。下が自陣になる。
+
+```sh
+# 何手目にどこ（敵陣・中段・自陣）で取ったか、どちらが先に取ったか、何の駒をどの駒で取ったか（60手目まで）別の勝率
+node scripts/capture-timing.ts data/lishogi/index.jsonl 6 300
+```
