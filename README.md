@@ -93,3 +93,12 @@ node scripts/capture-timing.ts data/lishogi/index.jsonl 6 300
 # 勝ち局・負け局の平均と差（d）、値ごとの勝率（段位帯別）、戦型ごとの d（戦型の数・最低局数）
 node --max-old-space-size=4096 scripts/win-patterns.ts data/lishogi/index.jsonl 8 300
 ```
+
+## 囲いごとの取った駒・敵陣に入った駒の集計
+
+駒の種類ごとに、上限の手数までにその駒を取った（盤上から敵陣に入った、敵陣に打った）局とそうでない局の勝率の差を、自分の囲い別と相手の囲い別に出す。差は段位帯ごとにとってから局数で重みをつけて平均する（`src/invasions.ts`）。
+
+```sh
+# 手数の上限・囲いの数・最低局数
+node scripts/castle-pieces.ts data/lishogi/index.jsonl 60 12 300
+```
