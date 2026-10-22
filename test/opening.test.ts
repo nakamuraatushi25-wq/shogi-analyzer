@@ -40,6 +40,21 @@ test('横歩取り', () => {
   assert.equal(r.opening, '横歩取り');
 });
 
+test('玉を左に囲ってから飛車を回すのは振り飛車にしない', () => {
+  const r = classifyOpening(parseKif(kif([
+    '７六歩(77)', '３四歩(33)', '６八玉(59)', '８四歩(83)', '７八玉(68)', '８五歩(84)', '５八飛(28)', '投了',
+  ])));
+  assert.equal(r.sente.rookStyle, '居飛車');
+  assert.equal(r.matchup, '相居飛車');
+});
+
+test('浮き飛車からの横移動は振り飛車にしない', () => {
+  const r = classifyOpening(parseKif(kif([
+    '２六歩(27)', '８四歩(83)', '２五歩(26)', '８五歩(84)', '２六飛(28)', '３四歩(33)', '５六飛(26)', '投了',
+  ])));
+  assert.equal(r.sente.rookStyle, '居飛車');
+});
+
 test('相振り飛車：石田流 vs 中飛車', () => {
   const r = classifyOpening(parseKif(kif([
     '７六歩(77)', '３四歩(33)', '７五歩(76)', '５二飛(82)', '７八飛(28)', '５四歩(53)', '７六飛(78)', '投了',
