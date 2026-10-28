@@ -1,14 +1,16 @@
 // 集めた棋譜を1局1行の一覧（JSON Lines）にする。戦型・囲い・段級位・勝敗・駒ごとの回数・駒を取ったマス・敵陣に入った駒・
-// 仕掛けの局面の指標・序盤の手順を入れておき、
+// 仕掛けの局面の指標・手筋・囲いの急所への利きと守り駒の崩れ・序盤の手順を入れておき、
 // 以降の集計で棋譜を読み直さずに済むようにする
 // 使い方: node scripts/build-index.ts <lishogi-data のディレクトリ> <出力.jsonl>
 import { appendFileSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseKif, splitKifGames } from '../src/kif.ts';
 import { captureSquares } from '../src/captures.ts';
+import { castleWatch } from '../src/castleWatch.ts';
 import { classifyOpening } from '../src/opening.ts';
 import { invasions } from '../src/invasions.ts';
 import { countPieceMoves, WINDOW_PLY } from '../src/pieceCounts.ts';
 import { parsePlayer } from '../src/players.ts';
+import { techniques } from '../src/techniques.ts';
 import type { Move } from '../src/types.ts';
 import { winPatternMetrics } from '../src/winPatterns.ts';
 
@@ -44,6 +46,8 @@ for (const file of readdirSync(`${dir}/players`).sort()) {
       const captures = captureSquares(game);
       const metrics = winPatternMetrics(game);
       const entered = invasions(game);
+      const tech = techniques(game);
+      const watch = castleWatch(game, o.castlePly);
       const side = (color: 'sente' | 'gote') => {
         const player = parsePlayer(game.headers[color === 'sente' ? '先手' : '後手']);
         return {
@@ -57,13 +61,24 @@ for (const file of readdirSync(`${dir}/players`).sort()) {
           invasions: entered[color].map((v) => [v.ply, v.file * 10 + v.rank, v.piece, v.drop ? 1 : 0]),
           // 仕掛けの局面とその20手後の指標（src/winPatterns.ts）。駒がぶつからなかった局は null
           metrics: metrics?.[color] ?? null,
+          // 手筋: [手数, 名前, 筋*10+段（自分側から見た座標）]（src/techniques.ts）
+          tesuji: tech[color].events.map((e) => [e.ply, e.name, e.file * 10 + e.rank]),
+          // 仕掛けの後の自分の手数と、そのうち歩切れだった手数
+          pawnless: [tech[color].pawnless, tech[color].afterFight],
+          // 囲いの急所への利きと守り駒が崩れた手数（src/castleWatch.ts）。守り駒は [駒, 筋*10+段, 動いた手数, 取られた手数]
+          watch: watch && {
+            king: watch[color].king.file * 10 + watch[color].king.rank,
+            key: watch[color].key.map((q) => q.file * 10 + q.rank), samples: watch[color].samples,
+            outnumbered: watch[color].outnumbered, kingMoved: watch[color].kingMoved,
+            defenders: watch[color].defenders.map((d) => [d.type, d.file * 10 + d.rank, d.moved, d.captured]),
+          },
         };
       };
       lines.push(JSON.stringify({
         url, start: game.headers['開始日時'] ?? null, timeControl: game.headers['持ち時間'] ?? null,
         plies: game.moves.length, winner: game.result.winner, reason: game.result.reason,
         opening: o.opening, matchup: o.matchup, bishopExchange: o.bishopExchange,
-        fightPly: metrics?.fightPly ?? null,
+        fightPly: metrics?.fightPly ?? null, castlePly: o.castlePly,
         moves: game.moves.slice(0, OPENING_PLIES).map(moveKey),
         sente: side('sente'), gote: side('gote'),
       }));
